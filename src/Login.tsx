@@ -2,8 +2,10 @@ import React from 'react'
 import { useState } from 'react'
 import Swal from 'sweetalert2' 
 import withReactContent from 'sweetalert2-react-content'
+import { useNavigate } from 'react-router-dom'
 
 function Login() {
+    const navigate = useNavigate()
     const [email, setEmail] = useState({})
     const [inputs, setInputs] = useState({}); // Declare the 'inputs' variable
     const MySwal = withReactContent(Swal)
@@ -40,6 +42,9 @@ fetch("http://localhost:8080/v1/users/login", requestOptions)
                 title: 'Login Success',
                 icon: 'success',
                 confirmButtonText: 'Cool'
+            }).then((value) => {
+                localStorage.setItem('token', result.token)
+                navigate('/profile')
             })
         }else{
             MySwal.fire({
