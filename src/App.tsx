@@ -1,7 +1,7 @@
 import React from 'react'
 import { Routes, Route} from 'react-router-dom'
-import Login from './Login'
-import Profile from './Profile'
+import Login from './Component/Login/Login'
+import Profile from './Component/Profile/Profile'
 
 function App() {
   return (
