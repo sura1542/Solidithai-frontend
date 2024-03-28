@@ -24,10 +24,11 @@ function Login() {
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
 
-        const raw = JSON.stringify({
+        const raw: any = JSON.stringify({
             "username": (inputs as { username?: string }).username,
             "password": (inputs as { password?: string }).password
         });
+        console.log ((inputs as { username?: string }).username);
 
         const requestOptions: RequestInit = {
             method: "POST",
@@ -47,7 +48,7 @@ function Login() {
                         confirmButtonText: 'Enter'
                     }).then((value) => {
                         localStorage.setItem('token', result.token)
-                        navigate('/profile')
+                        navigate(`/profile?username=${(inputs as { username?: string }).username}`);
                     })
                 } else {
                     MySwal.fire({
@@ -90,7 +91,7 @@ function Login() {
                 </div>
                 </div>
                 <br />
-                <div className="forgot">Forgot Password? <span>Click here!</span></div>
+                <a href="/register" className="forgot">Don't have an account? Click here!</a>
                 <div className='submit-container'>
                     <div className='submit'> <input type="submit" />
                     </div>

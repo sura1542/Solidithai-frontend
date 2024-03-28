@@ -74,3 +74,11 @@
     text-decoration: underline;
   }
   
+  .register {
+    font-size: 14px;
+    text-align: center;
+  }
+  .regidter span {
+    color: #007bff;
+    cursor: pointer;
+  }

@@ -1,82 +1,85 @@
-import React, {useState} from "react";
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
-import { useNavigate } from 'react-router-dom'
-import './Register.css'
-import user_icon from '../Assets/email.png'
-import password_icon from '../Assets/password.png'
-
+import React, { useState } from 'react';
+import './Register.css';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 function Register() {
-    const navigate = useNavigate()
-    const [inputs, setInputs] = useState({}); // Declare the 'inputs' variable
-    const MySwal = withReactContent(Swal)
+    const navigate = useNavigate();
+    const [inputs, setInputs] = useState({
+        username: '',
+        password: '',
+        fullname: '',
+        avatar: ''
+    });
 
-    const handleChange = (e: any) => {
-        const name = e.target.name;
-        const value = e.target.value;
-        setInputs(values => ({ ...values, [name]: value }));
+    const handleChange = (e: { target: { name: any; value: any; }; }) => {
+        const { name, value } = e.target;
+        setInputs({
+            ...inputs,
+            [name]: value
+        });
     }
 
-    const handleSubmit = (e: any) => {
+    const handleSubmit = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
 
         const raw = JSON.stringify({
-            "username": (inputs as { username?: string }).username,
-            "password": (inputs as { password?: string }).password
+            "username": inputs.username,
+            "password": inputs.password,
+            "fullname": inputs.fullname,
+            "avatar": inputs.avatar
         });
 
         const requestOptions: RequestInit = {
             method: "POST",
             headers: myHeaders,
             body: raw,
-            redirect: "follow" as RequestRedirect | undefined
+            redirect: "follow" as RequestRedirect
         };
 
         fetch("http://localhost:8080/v1/users/register", requestOptions)
-            .then((response) => response.json())
-            .then((result) => {
-                console.log(result)
-                if (result.status === "ok") {
-                    MySwal.fire({
-                        title: 'Register Success',
-                        icon: 'success',
-                        confirmButtonText: 'Enter'
-                    }).then((value) => {
-                        localStorage.setItem('token', result.token)
-                        navigate('/profile')
-                    })
-                } else {
-                    MySwal.fire({
-                        title: 'Register Failed',
-                        icon: 'error',
-                        confirmButtonText: 'Enter'
-                    })
-                }
+            .then(response => response.text())
+            .then(result => console.log(result))
+            .then(() => {
+                const MySwal = withReactContent(Swal);
+                MySwal.fire({
+                    title: 'Success',
+                    text: 'Register successful',
+                    icon: 'success',
+                    confirmButtonText: 'Ok'
+                }).then(() => {
+                    navigate('/login');
+                });
             })
-            .catch((error) => console.error(error));
+            .catch(error => console.error(error));
     }
 
     return (
-        <div className="login-container">
-            <div className="login-form">
-                <h1>Register</h1>
-                <form onSubmit={handleSubmit}>
-                    <div className="input-field">
-                        <img src={user_icon} alt="user_icon" />
-                        <input type="text" name="username" placeholder="Username" onChange={handleChange} />
-                    </div>
-                    <div className="input-field">
-                        <img src={password_icon} alt="password_icon" />
-                        <input type="password" name="password" placeholder="Password" onChange={handleChange} />
-                    </div>
-                    <button type="submit">Register</button>
-                </form>
-            </div>
+        <div>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    Username:
+                    <input type="text" name="username" onChange={handleChange} />
+                </label>
+                <label>
+                    Fullname:
+                    <input type="text" name="fullname" onChange={handleChange} />
+                </label>
+                <label>
+                    Password:
+                    <input type="password" name="password" onChange={handleChange} />
+                </label>
+                <label>
+                    Avatar:
+                    <input type="text" name="avatar" onChange={handleChange} />
+                </label>
+                <button type="submit">Submit</button>
+            </form>
         </div>
     )
 }
 
-export default Register
+export default Register;

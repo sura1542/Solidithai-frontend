@@ -1,76 +1,79 @@
-import React from 'react'
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import Swal from 'sweetalert2';
-import './Profile.css'
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
+interface User {
+    ID: number;
+    Username: string;
+    Fullname: string;
+    Avatar: string;
+}
 
 function Profile() {
-    const navigate = useNavigate()
-    const [isLoaded, setIsLoaded] = useState(true);
-    const [user, setuser] = useState<any>([]);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const location = useLocation();
+    const username = new URLSearchParams(location.search).get('username');
+    const [profile, setProfile] = React.useState<User>({
+        ID: 0,
+        Username: 'username',
+        Fullname: 'fullname',
+        Avatar: 'avatar'
+    });
 
     useEffect(() => {
-        console.log("line13", user)
-        //   setuser(user)
-    }, [user])
+        console.log(username);
+    }, [])
+    
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setError("No token found");
+            setIsLoaded(true);
+            return;
+        }
 
-    const loadDatas = async () => {
-        const token = localStorage.getItem('token');
         const myHeaders = new Headers();
         myHeaders.append("Authorization", "Bearer " + token);
 
-        const requestOptions = {
+        const requestOptions: RequestInit = {
             method: "GET",
             headers: myHeaders,
-            redirect: "follow" as RequestRedirect | undefined
+            redirect: "follow"
         };
 
-        await fetch("http://localhost:8080/v1/auth/readall", requestOptions)
-            .then((response) => response.json())
-            .then((result) => {
-                if (result.status === "success") {
-                    setIsLoaded(false);
-                    setuser(result.data);
-                } else if (result.status === "error") {
-                    Swal.fire({
-                        title: 'Token Expired',
-                        icon: 'error',
-                        confirmButtonText: 'Cool'
-                    }).then((value) => {
-                        navigate('/login')
-                    })
-
+        fetch(`http://localhost:8080/v1/users/findbyid/${username}`, requestOptions)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch user data");
                 }
-                console.log(result.status)
+                return response.json();
             })
-            .catch((error) => console.error(error));
+            .then((result: any) => {
+                setProfile(result.data);
+                setIsLoaded(true);
+                console.log(result.data);
+            })
+            .catch(error => {
+                setError(error.message);
+                setIsLoaded(true);
+            });
+    }, []);
+
+    if (!isLoaded) {
+        return <div>Loading...</div>;
     }
 
-    useEffect(() => {
-        loadDatas()
-    }, [])
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
     return (
         <div>
-            <div>
-                <div className="container">
-                    <div className="row">
-                        <div className="col-md-4">
-                            <div className="card">
-                                <div className="card-body">
-                                    <h5 className="card-title">Name: {user[12]?.Fullname}</h5>
-                                    <h5 className="card-title">Email: {user[12]?.Username}</h5>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <h2>All Users</h2>
+                <p>Username: {profile.Username}</p>
+                <p>Full Name: {profile.Fullname}</p>
         </div>
-    )
+    );
 }
 
-
-export default Profile
-
-
+export default Profile;
