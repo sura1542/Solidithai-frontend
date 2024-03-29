@@ -1,0 +1,76 @@
+/* Style the profile section */
+.container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .editicon {
+    position: absolute;
+    right: 70px;
+    bottom: 20px;
+    transform: translateY(-50%);
+    height: 30px;
+  }
+  
+  .deleteicon {
+    position: absolute;
+    right: 10px;
+    bottom: 20px;
+    transform: translateY(-50%);
+    height: 30px;
+  }
+  
+  .profile-text {
+    text-align: center;
+    /* margin-bottom: 20px; */
+  }
+  
+  .profile-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px; /* Adjust height as needed */
+  }
+  
+  /* Style the icon */
+  .icon {
+    max-width: 100%;
+    max-height: 100%;
+  }
+  
+  .body-text {
+    font-family: Arial, sans-serif;
+    border-radius: 5px;
+    padding: 45px;
+    margin: 20px;
+    /* max-width: 400px; */
+    /* background-color: #f5f5f5; */
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+  }
+  
+  /* Style the paragraphs */
+  .body-text p {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .profileicon {
+    height: 100px; /* Adjust height as needed */
+  }
+  
+  .ud-icon {
+    position: absolute;
+    right: 10px;
+    bottom: 20px;
+    transform: translateY(-50%);
+    height: 30px;
+  }
+  

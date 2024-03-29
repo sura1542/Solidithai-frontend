@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import './Profile.css'
 import usericon from '../Assets/profileicon.png'
 import edit from '../Assets/edit.png'
@@ -12,7 +12,7 @@ interface User {
     Avatar: string;
 }
 
-function Profile(this: any) {
+function Profile() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const location = useLocation();
@@ -24,9 +24,6 @@ function Profile(this: any) {
         Avatar: 'avatar'
     });
 
-    const editfunc = () => {
-        window.location.href = "/editprofile";
-    }
 
     const deletefunc = () => {
         const myHeaders = new Headers();
@@ -105,11 +102,11 @@ function Profile(this: any) {
     return (
         <div className="container">
             <div className="ud-action">
+                <Link to={`/editprofile?username=${username}`}>
+                    <img className="editicon" src={edit} alt="edit" />
+                </Link>
                 <button>
-                    <img className="editicon" src={edit} alt="edit" onClick={(editfunc)} />
-                </button>
-                <button>
-                    <img className="deleteicon" src={deleteIcon} alt="delete" onClick={(deletefunc)} />
+                    <img className="deleteicon" src={deleteIcon} alt="delete" onClick={deletefunc} />
                 </button>
             </div>
             <div className="profile-text">
