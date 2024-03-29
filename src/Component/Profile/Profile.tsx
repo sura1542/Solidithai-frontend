@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import './Profile.css'
+import usericon from '../Assets/profileicon.png'
+import edit from '../Assets/edit.png'
+import deleteIcon from '../Assets/delete.png'
 
 interface User {
     ID: number;
@@ -8,7 +12,7 @@ interface User {
     Avatar: string;
 }
 
-function Profile() {
+function Profile(this: any) {
     const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const location = useLocation();
@@ -20,10 +24,41 @@ function Profile() {
         Avatar: 'avatar'
     });
 
+    const editfunc = () => {
+        window.location.href = "/editprofile";
+    }
+
+    const deletefunc = () => {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
+
+        const requestOptions: RequestInit = {
+            method: "DELETE",
+            headers: myHeaders,
+            redirect: "follow"
+        };
+
+        fetch(`http://localhost:8080/v1/users/delete/${username}`, requestOptions)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to delete user");
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log(result);
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
     useEffect(() => {
         console.log(username);
     }, [])
-    
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -68,10 +103,28 @@ function Profile() {
     }
 
     return (
-        <div>
-            <h2>All Users</h2>
-                <p>Username: {profile.Username}</p>
+        <div className="container">
+            <div className="ud-action">
+                <button>
+                    <img className="editicon" src={edit} alt="edit" onClick={(editfunc)} />
+                </button>
+                <button>
+                    <img className="deleteicon" src={deleteIcon} alt="delete" onClick={(deletefunc)} />
+                </button>
+            </div>
+            <div className="profile-text">
+                <h2>Profile</h2>
+                <img className="profileicon" src={usericon} alt="Profile Icon" />
+            </div>
+            <div className="body-text">
+                <p>User Name: {profile.Username}</p>
                 <p>Full Name: {profile.Fullname}</p>
+            </div>
+            <button className="logout" onClick={() => {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+            }}>Logout
+            </button>
         </div>
     );
 }

@@ -91,7 +91,9 @@ function Login() {
                 </div>
                 </div>
                 <br />
-                <a href="/register" className="forgot">Don't have an account? Click here!</a>
+                <div className="forgotContainer">
+                    <a href="/register" className="forgot">Don't have an account? Click here!</a>
+                </div>
                 <div className='submit-container'>
                     <div className='submit'> <input type="submit" />
                     </div>
