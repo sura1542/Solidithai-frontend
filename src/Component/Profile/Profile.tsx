@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useNavigate } from 'react-router-dom'
 import './Profile.css'
 import usericon from '../Assets/profileicon.png'
 import edit from '../Assets/edit.png'
@@ -16,6 +17,7 @@ function Profile() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const location = useLocation();
+    const navigate = useNavigate();
     const username = new URLSearchParams(location.search).get('username');
     const [profile, setProfile] = React.useState<User>({
         ID: 0,
@@ -23,7 +25,6 @@ function Profile() {
         Fullname: 'fullname',
         Avatar: 'avatar'
     });
-
 
     const deletefunc = () => {
         const myHeaders = new Headers();
@@ -102,9 +103,9 @@ function Profile() {
     return (
         <div className="container">
             <div className="ud-action">
-                <Link to={`/editprofile?username=${username}`}>
-                    <img className="editicon" src={edit} alt="edit" />
-                </Link>
+                <button>
+                    <img className="editicon" src={edit} alt="edit" onClick={() => navigate(`/edit?username=${username}`)} />
+                </button>
                 <button>
                     <img className="deleteicon" src={deleteIcon} alt="delete" onClick={deletefunc} />
                 </button>

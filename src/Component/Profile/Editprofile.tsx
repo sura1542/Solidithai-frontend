@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import './Profile.css'
+import usericon from '../Assets/profileicon.png'
 
 interface User {
     ID: number;
@@ -7,102 +10,110 @@ interface User {
     Avatar: string;
 }
 
-interface EditProfileProps {
-    history: any; // or type it more specifically if you know its type
-}
-
-function EditProfile(props: EditProfileProps) {
-    const [user, setUser] = useState<User>({
-        ID: 0,
-        Username: "",
-        Fullname: "",
-        Avatar: ""
-    });
+function EditProfile() {
+    const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [profile, setProfile] = useState<User>({
+        ID: 0,
+        Username: '',
+        Fullname: '',
+        Avatar: ''
+    });
+    const location = useLocation();
+    const navigate = useNavigate();
+    const username = new URLSearchParams(location.search).get('username');
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            props.history.push("/login");
-            return;
-        }
+        const fetchData = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    throw new Error("No token found");
+                }
 
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer " + token);
+                const myHeaders = new Headers();
+                myHeaders.append("Authorization", "Bearer " + token);
 
-        const requestOptions: RequestInit = {
-            method: "GET",
-            headers: myHeaders,
-            redirect: "follow"
-        };
+                const requestOptions: RequestInit = {
+                    method: "GET",
+                    headers: myHeaders,
+                    redirect: "follow"
+                };
 
-        fetch("http://localhost:8080/v1/users/profile", requestOptions)
-            .then(response => {
+                const response = await fetch(`http://localhost:8080/v1/users/findbyid/${username}`, requestOptions);
                 if (!response.ok) {
                     throw new Error("Failed to fetch user data");
                 }
-                return response.json();
-            })
-            .then((result: User) => {
-                setUser(result);
-            })
-            .catch(error => {
-                setError(error.message);
-            });
-    }, [props.history]);
-
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const token = localStorage.getItem("token");
-        if (!token) {
-            props.history.push("/login");
-            return;
-        }
-    
-        const myHeaders = new Headers();
-        myHeaders.append("Authorization", "Bearer " + token);
-        myHeaders.append("Content-Type", "application/json");
-    
-        const requestOptions: RequestInit = {
-            method: "PUT",
-            headers: myHeaders,
-            body: JSON.stringify(user),
-            redirect: "follow"
+                const result = await response.json();
+                setProfile(result.data);
+                setIsLoaded(true);
+            } catch (error) {
+                setIsLoaded(true);
+            }
         };
-    
-        fetch(`http://localhost:8080/v1/users/edit/${user.Username}`, requestOptions)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to update user");
-                }
-                props.history.push("/profile");
-            })
-            .catch(error => {
-                setError(error.message);
-            });
+
+        fetchData();
+    }, [username]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setProfile({ ...profile, [name]: value });
     };
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setUser({
-            ...user,
-            [event.target.name]: event.target.value
-        });
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                throw new Error("No token found");
+            }
+
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer " + token);
+            myHeaders.append("Content-Type", "application/json");
+
+            const requestOptions: RequestInit = {
+                method: "PUT",
+                headers: myHeaders,
+                body: JSON.stringify(profile),
+                redirect: "follow"
+            };
+
+            const response = await fetch(`http://localhost:8080/v1/users/edit/${username}`, requestOptions);
+            if (!response.ok) {
+                throw new Error("Failed to update user data");
+            }
+
+            navigate(`/profile?username=${profile.Username}`);
+        } catch (error) {
+            console.error(error);
+        }
     };
+
+    if (!isLoaded) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
 
     return (
-        <div>
-            <h2>Edit Profile</h2>
-            {error && <div>Error: {error}</div>}
+        <div className="container">
+            <div className="profile-text">
+                <h2>Edit Profile</h2>
+                <img className="profileicon" src={usericon} alt="Profile Icon" />
+            </div>
             <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Username:</label>
-                    <input type="text" name="Username" value={user.Username} onChange={handleChange} />
+                <div className="body-text">
+                    <label htmlFor="username">Username:</label>
+                    <input type="text" id="username" name="Username" value={profile.Username} onChange={handleInputChange} />
                 </div>
-                <div>
-                    <label>Full Name:</label>
-                    <input type="text" name="Fullname" value={user.Fullname} onChange={handleChange} />
+                <div className="body-text">
+                    <label htmlFor="fullname">Full Name:</label>
+                    <input type="text" id="fullname" name="Fullname" value={profile.Fullname} onChange={handleInputChange} />
                 </div>
-                <button type="submit">Update</button>
+                <button type="submit">Save Changes</button>
             </form>
         </div>
     );
